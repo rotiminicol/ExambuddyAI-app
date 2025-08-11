@@ -7,7 +7,8 @@ import Animated, {
   useAnimatedStyle, 
   withSpring, 
   withSequence,
-  withDelay 
+  withDelay,
+  runOnJS
 } from 'react-native-reanimated';
 import { Brain } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,33 +17,54 @@ export default function SplashScreen() {
   const { user, loading } = useAuth();
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
+  const animationComplete = useSharedValue(false);
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     opacity: opacity.value,
   }));
 
+  const handleNavigationAfterAnimation = () => {
+    animationComplete.value = true;
+  };
+
   useEffect(() => {
     // Start animations
     scale.value = withSequence(
       withSpring(1.2, { duration: 800 }),
-      withSpring(1, { duration: 400 })
+      withSpring(1, { duration: 400 }, () => {
+        runOnJS(handleNavigationAfterAnimation)();
+      })
     );
     opacity.value = withSpring(1, { duration: 800 });
+  }, []);
 
-    // Navigate after animation and auth check
-    const timer = setTimeout(() => {
-      if (!loading) {
-        if (user) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/welcome');
+  useEffect(() => {
+    if (!loading && animationComplete.value) {
+      const timer = setTimeout(() => {
+        try {
+          if (user) {
+            router.replace('/(tabs)');
+          } else {
+            router.replace('/welcome');
+          }
+        } catch (error) {
+          console.log('Navigation error:', error);
         }
-      }
-    }, 2500);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user, loading, animationComplete.value]);
 
-    return () => clearTimeout(timer);
-  }, [user, loading]);
+  useEffect(() => {
+    return () => {
+      // Cleanup function to prevent state updates on unmounted component
+      if (animationComplete.value) {
+        animationComplete.value = false;
+      }
+    };
+  }, []);
 
   return (
     <LinearGradient
