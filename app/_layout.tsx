@@ -5,8 +5,14 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
+
+// Ensure initial route is the splash screen even when router state would persist in dev
+export const unstable_settings = {
+  initialRouteName: 'splash',
+};
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -29,16 +35,18 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="splash" />
-        <Stack.Screen name="welcome" />
-        <Stack.Screen name="auth/signin" />
-        <Stack.Screen name="auth/signup" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="light" />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Stack initialRouteName="splash" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="splash" />
+          <Stack.Screen name="welcome" />
+          <Stack.Screen name="auth/signin" />
+          <Stack.Screen name="auth/signup" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="light" />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

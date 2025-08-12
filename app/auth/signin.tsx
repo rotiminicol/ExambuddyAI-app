@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
+import { AntDesign } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SignInScreen() {
@@ -92,24 +92,29 @@ export default function SignInScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.signInButton, loading && styles.signInButtonDisabled]}
+              style={[styles.primaryButton, loading && styles.primaryButtonDisabled]}
               onPress={handleSignIn}
               disabled={loading}>
-              <LinearGradient
-                colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#8B5CF6', '#06B6D4']}
-                style={styles.signInButtonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}>
-                <Text style={styles.signInButtonText}>
-                  {loading ? 'Signing In...' : 'Sign In'}
-                </Text>
-              </LinearGradient>
+              <Text style={styles.primaryButtonText}>
+                {loading ? 'Signing In...' : 'Sign In'}
+              </Text>
             </TouchableOpacity>
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>or</Text>
               <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.socialButtons}>
+              <TouchableOpacity style={styles.socialButtonOutline}>
+                <AntDesign name="google" size={18} color="#111111" />
+                <Text style={styles.socialButtonOutlineText}>Continue with Google</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButtonSolid}>
+                <AntDesign name="apple1" size={18} color="#FFFFFF" />
+                <Text style={styles.socialButtonSolidText}>Continue with Apple</Text>
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
@@ -129,7 +134,7 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
   },
   keyboardView: {
     flex: 1,
@@ -159,13 +164,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontFamily: 'Inter-Bold',
-    color: '#1F2937',
+    color: '#111111',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
-    color: '#6B7280',
+    color: '#4B5563',
     lineHeight: 24,
   },
   form: {
@@ -181,6 +186,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -210,26 +217,20 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#8B5CF6',
+    color: '#111111',
+    textDecorationLine: 'underline',
   },
-  signInButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 24,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  signInButtonDisabled: {
-    shadowOpacity: 0.1,
-  },
-  signInButtonGradient: {
-    paddingVertical: 18,
+  primaryButton: {
+    borderRadius: 24,
+    paddingVertical: 16,
     alignItems: 'center',
+    backgroundColor: '#000000',
+    marginBottom: 24,
   },
-  signInButtonText: {
+  primaryButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  primaryButtonText: {
     fontSize: 18,
     fontFamily: 'Inter-SemiBold',
     color: '#FFFFFF',
@@ -257,10 +258,45 @@ const styles = StyleSheet.create({
   signUpPromptText: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
-    color: '#6B7280',
+    color: '#4B5563',
   },
   signUpLink: {
-    color: '#8B5CF6',
+    color: '#111111',
     fontFamily: 'Inter-SemiBold',
+    textDecorationLine: 'underline',
+  },
+  socialButtons: {
+    gap: 12,
+    marginBottom: 16,
+  },
+  socialButtonOutline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
+  },
+  socialButtonOutlineText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#111111',
+  },
+  socialButtonSolid: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 16,
+    backgroundColor: '#000000',
+  },
+  socialButtonSolidText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
   },
 });

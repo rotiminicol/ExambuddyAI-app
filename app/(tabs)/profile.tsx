@@ -1,116 +1,253 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Settings, Bell, Moon, Download, CircleHelp as HelpCircle, LogOut, ChevronRight, Award, Clock, Target } from 'lucide-react-native';
-import { ProfileStatsCard } from '@/components/ProfileStatsCard';
-import { useAuth } from '@/contexts/AuthContext';
 import { router } from 'expo-router';
+import { 
+  ArrowLeft, 
+  User, 
+  Mail, 
+  Calendar, 
+  Award, 
+  Target, 
+  Clock, 
+  TrendingUp,
+  Settings,
+  Bell,
+  HelpCircle,
+  LogOut,
+  Edit,
+  Crown,
+  Star,
+  Zap,
+  ChevronRight
+} from 'lucide-react-native';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { colors } from '@/lib/theme';
+import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userStats, setUserStats] = useState<any>(null);
 
-  const profileStats = [
-    { icon: Award, label: 'Tests Completed', value: '47', color: '#10B981' },
-    { icon: Clock, label: 'Study Hours', value: '156', color: '#8B5CF6' },
-    { icon: Target, label: 'Accuracy', value: '87%', color: '#06B6D4' },
-  ];
+  useEffect(() => {
+    loadUserProfile();
+    loadUserStats();
+  }, []);
 
-  const menuItems = [
-    { icon: Bell, label: 'Notifications', hasSwitch: true, value: true },
-    { icon: Moon, label: 'Dark Mode', hasSwitch: true, value: false },
-    { icon: Download, label: 'Offline Content', hasSwitch: false },
-    { icon: HelpCircle, label: 'Help & Support', hasSwitch: false },
-    { icon: Settings, label: 'Settings', hasSwitch: false },
-  ];
+  const loadUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserProfile({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.full_name || 'User',
+          avatar: user.user_metadata?.avatar_url || null,
+          joinedDate: user.created_at,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
+
+  const loadUserStats = async () => {
+    try {
+      const { data: statsData, error: statsError } = await supabase
+        .from('user_stats')
+        .select('*')
+        .single();
+
+      if (!statsError && statsData) {
+        setUserStats({
+          totalStudyTime: statsData.total_study_time || 0,
+          questionsAnswered: statsData.questions_answered || 0,
+          accuracy: statsData.accuracy || 0,
+          streak: statsData.streak || 0,
+          achievements: statsData.achievements || 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user stats:', error);
+    }
+  };
 
   const handleSignOut = async () => {
-    await signOut();
-    router.replace('/welcome');
+    try {
+      await supabase.auth.signOut();
+      router.replace('/splash');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const formatStudyTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <LinearGradient
-          colors={['#8B5CF6', '#06B6D4']}
-          style={styles.profileHeader}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-              </Text>
-            </View>
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.greeting}>Profile</Text>
+            <Text style={styles.userName}>Your account & settings</Text>
           </View>
-          <Text style={styles.userName}>
-            {user?.user_metadata?.full_name || 'User'}
-          </Text>
-          <Text style={styles.userEmail}>{user?.email}</Text>
-          <TouchableOpacity style={styles.editProfileButton}>
-            <Text style={styles.editProfileText}>Edit Profile</Text>
+          <TouchableOpacity style={styles.settingsButton}>
+            <Settings size={20} color={colors.surface} />
           </TouchableOpacity>
-        </LinearGradient>
+        </View>
+      </View>
 
-        <View style={styles.content}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Your Statistics</Text>
-            <View style={styles.statsContainer}>
-              {profileStats.map((stat, index) => (
-                <ProfileStatsCard key={index} {...stat} />
-              ))}
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Profile Card */}
+        <Card style={styles.profileCard}>
+          <View style={styles.profileHeader}>
+            <View style={styles.avatarContainer}>
+              {userProfile?.avatar ? (
+                <Image source={{ uri: userProfile.avatar }} style={styles.avatar} />
+              ) : (
+                <Text style={styles.avatarText}>
+                  {userProfile?.name ? userProfile.name.charAt(0).toUpperCase() : 
+                   userProfile?.email ? userProfile.email.charAt(0).toUpperCase() : 'U'}
+                </Text>
+              )}
             </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Study Streak</Text>
-            <View style={styles.streakCard}>
-              <View style={styles.streakHeader}>
-                <View style={styles.streakIconContainer}>
-                  <Text style={styles.streakIcon}>🔥</Text>
-                </View>
-                <View style={styles.streakInfo}>
-                  <Text style={styles.streakDays}>12 Days</Text>
-                  <Text style={styles.streakLabel}>Current Streak</Text>
-                </View>
-                <View style={styles.streakBadge}>
-                  <Text style={styles.streakBadgeText}>Hot!</Text>
-                </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{userProfile?.name || 'User'}</Text>
+              <Text style={styles.profileEmail}>{userProfile?.email || 'user@example.com'}</Text>
+              <View style={styles.memberSince}>
+                <Calendar size={14} color={colors.textMuted} />
+                <Text style={styles.memberSinceText}>
+                  Member since {userProfile?.joinedDate ? formatDate(userProfile.joinedDate) : 'Unknown'}
+                </Text>
               </View>
-              <Text style={styles.streakMotivation}>
-                Keep it up! You're building great study habits.
-              </Text>
+            </View>
+            <TouchableOpacity style={styles.editButton}>
+              <Edit size={16} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+        </Card>
+
+        {/* Stats Grid */}
+        {userStats && (
+          <View style={styles.statsSection}>
+            <Text style={styles.sectionTitle}>Your Stats</Text>
+            <View style={styles.statsGrid}>
+              <Card style={styles.statCard}>
+                <Clock size={20} color={colors.text} />
+                <Text style={styles.statValue}>{formatStudyTime(userStats.totalStudyTime)}</Text>
+                <Text style={styles.statLabel}>Total Study Time</Text>
+              </Card>
+              <Card style={styles.statCard}>
+                <Target size={20} color={colors.text} />
+                <Text style={styles.statValue}>{userStats.questionsAnswered}</Text>
+                <Text style={styles.statLabel}>Questions Answered</Text>
+              </Card>
+              <Card style={styles.statCard}>
+                <TrendingUp size={20} color={colors.text} />
+                <Text style={styles.statValue}>{userStats.accuracy}%</Text>
+                <Text style={styles.statLabel}>Accuracy</Text>
+              </Card>
+              <Card style={styles.statCard}>
+                <Zap size={20} color={colors.text} />
+                <Text style={styles.statValue}>{userStats.streak}</Text>
+                <Text style={styles.statLabel}>Day Streak</Text>
+              </Card>
             </View>
           </View>
+        )}
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Preferences</Text>
-            <View style={styles.menuContainer}>
-              {menuItems.map((item, index) => (
-                <TouchableOpacity key={index} style={styles.menuItem}>
-                  <View style={styles.menuItemLeft}>
-                    <item.icon size={24} color="#6B7280" />
-                    <Text style={styles.menuItemText}>{item.label}</Text>
-                  </View>
-                  {item.hasSwitch ? (
-                    <Switch
-                      value={item.value}
-                      onValueChange={() => {}}
-                      trackColor={{ false: '#E5E7EB', true: '#8B5CF6' }}
-                      thumbColor="#FFFFFF"
-                    />
-                  ) : (
-                    <ChevronRight size={20} color="#9CA3AF" />
-                  )}
-                </TouchableOpacity>
-              ))}
+        {/* Achievements */}
+        <View style={styles.achievementsSection}>
+          <Text style={styles.sectionTitle}>Achievements</Text>
+          <Card style={styles.achievementsCard}>
+            <View style={styles.achievementItem}>
+              <View style={styles.achievementIcon}>
+                <Award size={20} color={colors.text} />
+              </View>
+              <View style={styles.achievementContent}>
+                <Text style={styles.achievementTitle}>First Study Session</Text>
+                <Text style={styles.achievementDescription}>Complete your first study session</Text>
+              </View>
+              <Star size={16} color={colors.text} />
             </View>
-          </View>
+            <View style={styles.achievementItem}>
+              <View style={styles.achievementIcon}>
+                <Target size={20} color={colors.text} />
+              </View>
+              <View style={styles.achievementContent}>
+                <Text style={styles.achievementTitle}>Goal Setter</Text>
+                <Text style={styles.achievementDescription}>Set your first study goal</Text>
+              </View>
+              <Star size={16} color={colors.text} />
+            </View>
+            <View style={styles.achievementItem}>
+              <View style={styles.achievementIcon}>
+                <Crown size={20} color={colors.text} />
+              </View>
+              <View style={styles.achievementContent}>
+                <Text style={styles.achievementTitle}>Premium Member</Text>
+                <Text style={styles.achievementDescription}>Upgrade to premium</Text>
+              </View>
+              <View style={styles.lockedIcon}>
+                <Text style={styles.lockedText}>🔒</Text>
+              </View>
+            </View>
+          </Card>
+        </View>
 
-          <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-            <LogOut size={20} color="#EF4444" />
-            <Text style={styles.logoutText}>Sign Out</Text>
-          </TouchableOpacity>
+        {/* Quick Actions */}
+        <View style={styles.actionsSection}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionsList}>
+            <TouchableOpacity style={styles.actionItem}>
+              <View style={styles.actionIcon}>
+                <Settings size={20} color={colors.text} />
+              </View>
+              <Text style={styles.actionTitle}>App Settings</Text>
+              <ChevronRight size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem}>
+              <View style={styles.actionIcon}>
+                <Bell size={20} color={colors.text} />
+              </View>
+              <Text style={styles.actionTitle}>Notifications</Text>
+              <ChevronRight size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem}>
+              <View style={styles.actionIcon}>
+                <HelpCircle size={20} color={colors.text} />
+              </View>
+              <Text style={styles.actionTitle}>Help & Support</Text>
+              <ChevronRight size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Sign Out */}
+        <View style={styles.signOutSection}>
+          <Button 
+            title="Sign Out" 
+            variant="outline" 
+            onPress={handleSignOut}
+            style={styles.signOutButton}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -120,181 +257,217 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    backgroundColor: colors.text,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: colors.surface,
+    opacity: 0.8,
+  },
+  userName: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: colors.surface,
+    marginTop: 2,
+  },
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  content: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 120, // Space for bottom navigation
+  },
+  profileCard: {
+    marginTop: 24,
+    padding: 20,
   },
   profileHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    gap: 16,
   },
   avatarContainer: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   avatarText: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: 'Inter-Bold',
-    color: '#8B5CF6',
+    color: colors.text,
   },
-  userName: {
-    fontSize: 24,
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
-    marginTop: 16,
+    color: colors.text,
+    marginBottom: 4,
   },
-  userEmail: {
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
-    color: '#E0E7FF',
-    marginTop: 4,
-  },
-  editProfileButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 24,
-    marginTop: 20,
-  },
-  editProfileText: {
+  profileEmail: {
     fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFFFFF',
+    fontFamily: 'Inter-Medium',
+    color: colors.textMuted,
+    marginBottom: 8,
   },
-  content: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
+  memberSince: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  section: {
+  memberSinceText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: colors.textMuted,
+  },
+  editButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statsSection: {
     marginTop: 32,
   },
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#1F2937',
+    color: colors.text,
     marginBottom: 16,
   },
-  statsContainer: {
+  statsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
-  streakCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  streakHeader: {
-    flexDirection: 'row',
+  statCard: {
+    width: '48%',
     alignItems: 'center',
-    marginBottom: 12,
+    padding: 16,
+    gap: 8,
   },
-  streakIconContainer: {
-    width: 48,
-    height: 48,
-    backgroundColor: '#FEF3C7',
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  streakIcon: {
-    fontSize: 24,
-  },
-  streakInfo: {
-    flex: 1,
-  },
-  streakDays: {
-    fontSize: 20,
+  statValue: {
+    fontSize: 18,
     fontFamily: 'Inter-Bold',
-    color: '#1F2937',
+    color: colors.text,
   },
-  streakLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#6B7280',
-  },
-  streakBadge: {
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  streakBadgeText: {
+  statLabel: {
     fontSize: 12,
-    fontFamily: 'Inter-SemiBold',
-    color: '#F59E0B',
-  },
-  streakMotivation: {
-    fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#6B7280',
+    color: colors.textMuted,
     textAlign: 'center',
   },
-  menuContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+  achievementsSection: {
+    marginTop: 32,
   },
-  menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+  achievementsCard: {
+    padding: 0,
   },
-  menuItemLeft: {
+  achievementItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    flex: 1,
+    padding: 16,
+    gap: 12,
   },
-  menuItemText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
-    color: '#374151',
-  },
-  logoutButton: {
-    flexDirection: 'row',
+  achievementIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    backgroundColor: '#FFFFFF',
-    marginTop: 32,
-    paddingVertical: 16,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
-  logoutText: {
+  achievementContent: {
+    flex: 1,
+  },
+  achievementTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: colors.text,
+  },
+  achievementDescription: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  lockedIcon: {
+    width: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lockedText: {
+    fontSize: 12,
+  },
+  actionsSection: {
+    marginTop: 32,
+  },
+  actionsList: {
+    gap: 8,
+  },
+  actionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 12,
+  },
+  actionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionTitle: {
+    flex: 1,
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#EF4444',
+    color: colors.text,
+  },
+  signOutSection: {
+    marginTop: 32,
+    marginBottom: 24,
+  },
+  signOutButton: {
+    borderColor: colors.text,
   },
 });

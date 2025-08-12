@@ -1,243 +1,363 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useRef, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring,
-  withDelay,
-  runOnJS
-} from 'react-native-reanimated';
-import { Brain, BookOpen, Target, TrendingUp } from 'lucide-react-native';
-
-const { width, height } = Dimensions.get('window');
-
-const features = [
-  {
-    icon: Brain,
-    title: 'AI-Powered Learning',
-    description: 'Get personalized study plans and instant help',
-    color: '#8B5CF6',
-  },
-  {
-    icon: BookOpen,
-    title: 'Smart Study Materials',
-    description: 'Organize and review your content efficiently',
-    color: '#06B6D4',
-  },
-  {
-    icon: Target,
-    title: 'Practice Tests',
-    description: 'Test your knowledge with adaptive quizzes',
-    color: '#F59E0B',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Progress Tracking',
-    description: 'Monitor your improvement over time',
-    color: '#10B981',
-  },
-];
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay, withSequence, withSpring, withRepeat } from 'react-native-reanimated';
+import { Brain, ArrowRight } from 'lucide-react-native';
 
 export default function WelcomeScreen() {
-  const titleOpacity = useSharedValue(0);
-  const titleTranslateY = useSharedValue(50);
-  const featuresOpacity = useSharedValue(0);
-  const featuresTranslateY = useSharedValue(30);
-  const buttonsOpacity = useSharedValue(0);
-  const buttonsTranslateY = useSharedValue(30);
+  const { width } = useWindowDimensions();
+  const scrollRef = useRef<ScrollView>(null);
+  const [index, setIndex] = useState(0);
 
-  const titleAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: titleOpacity.value,
-    transform: [{ translateY: titleTranslateY.value }],
-  }));
-
-  const featuresAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: featuresOpacity.value,
-    transform: [{ translateY: featuresTranslateY.value }],
-  }));
-
-  const buttonsAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: buttonsOpacity.value,
-    transform: [{ translateY: buttonsTranslateY.value }],
-  }));
+  const headingOpacity = useSharedValue(0);
+  const headingY = useSharedValue(24);
+  const heroScale = useSharedValue(0.9);
+  const ctaOpacity = useSharedValue(0);
+  const ctaY = useSharedValue(24);
 
   React.useEffect(() => {
-    titleOpacity.value = withSpring(1, { duration: 800 });
-    titleTranslateY.value = withSpring(0, { duration: 800 });
-    
-    featuresOpacity.value = withDelay(300, withSpring(1, { duration: 800 }));
-    featuresTranslateY.value = withDelay(300, withSpring(0, { duration: 800 }));
-    
-    buttonsOpacity.value = withDelay(600, withSpring(1, { duration: 800 }));
-    buttonsTranslateY.value = withDelay(600, withSpring(0, { duration: 800 }));
+    headingOpacity.value = withTiming(1, { duration: 500 });
+    headingY.value = withTiming(0, { duration: 500 });
+    heroScale.value = withDelay(
+      150,
+      withSequence(withTiming(1.04, { duration: 300 }), withSpring(1, { damping: 12 }))
+    );
+    ctaOpacity.value = withDelay(350, withTiming(1, { duration: 450 }));
+    ctaY.value = withDelay(350, withTiming(0, { duration: 450 }));
   }, []);
+
+  const headingStyle = useAnimatedStyle(() => ({
+    opacity: headingOpacity.value,
+    transform: [{ translateY: headingY.value }],
+  }));
+
+  const heroStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heroScale.value }],
+  }));
+
+  const ctaStyle = useAnimatedStyle(() => ({
+    opacity: ctaOpacity.value,
+    transform: [{ translateY: ctaY.value }],
+  }));
+
+  const slides = [
+    {
+      key: 'welcome',
+      title: 'Welcome',
+      subtitle: "we're glad that you are here",
+      cta: "Let’s get started",
+    },
+    {
+      key: 'discover',
+      title: 'Discover Your Study Path',
+      subtitle: 'Tips and tricks to build strong fundamentals',
+      cta: 'Continue',
+    },
+    {
+      key: 'community',
+      title: 'Connect With Other Learners',
+      subtitle: 'Join a community and learn together',
+      cta: 'Create Account',
+    },
+  ];
+
+  const handlePrimary = () => {
+    if (index < slides.length - 1) {
+      scrollRef.current?.scrollTo({ x: (index + 1) * width, animated: true });
+    } else {
+      router.push('/auth/signup');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#8B5CF6', '#06B6D4']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
-        <Animated.View style={[styles.headerContent, titleAnimatedStyle]}>
-          <View style={styles.logoContainer}>
-            <Brain size={48} color="#FFFFFF" strokeWidth={2} />
+      {/* Background carousel fills screen */}
+      <Animated.View style={[styles.carouselWrap, heroStyle]}>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={(e) => {
+            const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
+            if (newIndex !== index) setIndex(newIndex);
+          }}
+          scrollEventThrottle={16}
+        >
+          {slides.map((s, i) => (
+            <View key={s.key} style={[styles.slide, { width }]}> 
+              <SlideArt index={i} />
           </View>
-          <Text style={styles.title}>Welcome to{'\n'}ExamBuddy AI</Text>
-          <Text style={styles.subtitle}>
-            Your intelligent study companion that adapts to your learning style
-          </Text>
+          ))}
+        </ScrollView>
         </Animated.View>
-      </LinearGradient>
 
-      <View style={styles.content}>
-        <Animated.View style={[styles.featuresContainer, featuresAnimatedStyle]}>
-          {features.map((feature, index) => (
-            <View key={index} style={styles.featureItem}>
-              <View style={[styles.featureIcon, { backgroundColor: `${feature.color}20` }]}>
-                <feature.icon size={24} color={feature.color} strokeWidth={2.5} />
+      {/* Header overlay */}
+      <Animated.View style={[styles.headerWrap, headingStyle]}>
+        <View style={styles.headerRow}>
+          <View style={styles.headerTextCol}>
+            <Text style={styles.welcome}>{slides[index].title}</Text>
+            <Text style={styles.tagline}>{slides[index].subtitle}</Text>
               </View>
-              <View style={styles.featureText}>
-                <Text style={styles.featureTitle}>{feature.title}</Text>
-                <Text style={styles.featureDescription}>{feature.description}</Text>
+          <View style={styles.headerBadge}>
+            <Brain size={40} color="#000000" strokeWidth={2} />
               </View>
             </View>
+        </Animated.View>
+
+      {/* Bottom action bar */}
+      <Animated.View style={[styles.bottomBar, ctaStyle]}>
+        <View style={styles.dots}>
+          {slides.map((_, i) => (
+            <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
           ))}
-        </Animated.View>
-
-        <Animated.View style={[styles.buttonsContainer, buttonsAnimatedStyle]}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => router.push('/auth/signup')}>
-            <LinearGradient
-              colors={['#8B5CF6', '#06B6D4']}
-              style={styles.primaryButtonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}>
-              <Text style={styles.primaryButtonText}>Get Started</Text>
-            </LinearGradient>
+        </View>
+        <View style={styles.bottomActions}>
+          <TouchableOpacity onPress={() => router.push('/auth/signin')}>
+            <Text style={styles.signInText}>Sign In</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() => router.push('/auth/signin')}>
-            <Text style={styles.secondaryButtonText}>Already have an account? Sign In</Text>
+          <TouchableOpacity activeOpacity={0.85} style={styles.getStarted} onPress={handlePrimary}>
+            <Text style={styles.getStartedText}>{slides[index].cta}</Text>
+            <ArrowRight size={18} color="#FFFFFF" strokeWidth={2} />
           </TouchableOpacity>
+        </View>
         </Animated.View>
-      </View>
     </SafeAreaView>
+  );
+}
+
+function SlideArt({ index }: { index: number }) {
+  // Shared animation for shapes
+  const pulse = useSharedValue(0);
+  const drift = useSharedValue(0);
+
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1, { duration: 1600 }), -1, true);
+    drift.value = withRepeat(withTiming(1, { duration: 2600 }), -1, true);
+  }, []);
+
+  const circleStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: 0.95 + pulse.value * 0.05 },
+      { translateY: -6 + pulse.value * 12 },
+    ],
+    opacity: 0.15 + pulse.value * 0.1,
+  }));
+
+  const squareStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${-4 + pulse.value * 8}deg` },
+      { translateX: -10 + pulse.value * 20 },
+    ],
+    opacity: 0.1 + pulse.value * 0.15,
+  }));
+
+  const stripesStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: -20 + drift.value * 40 },
+    ],
+    opacity: 0.12,
+  }));
+
+  return (
+    <View style={styles.artContainer}>
+      {/* Soft stripes background */}
+      <Animated.View style={[styles.stripes, stripesStyle]} />
+
+      {/* Big circle */}
+      <Animated.View style={[styles.artCircleLarge, circleStyle]} />
+      {/* Small circle */}
+      <Animated.View style={[styles.artCircleSmall, circleStyle]} />
+
+      {/* Tilted square/diamond */}
+      <Animated.View style={[styles.artSquare, squareStyle]} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
   },
-  header: {
+  headerWrap: {
+    position: 'absolute',
+    top: 60,
+    left: 0,
+    right: 0,
     paddingHorizontal: 24,
-    paddingVertical: 48,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    minHeight: height * 0.4,
-    justifyContent: 'center',
+    paddingTop: 12,
   },
-  headerContent: {
-    alignItems: 'center',
-  },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 32,
+  welcome: {
+    fontSize: 40,
     fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 40,
+    color: '#111111',
+    letterSpacing: 0.2,
   },
-  subtitle: {
+  tagline: {
+    marginTop: 8,
     fontSize: 16,
     fontFamily: 'Inter-Medium',
-    color: '#E0E7FF',
-    textAlign: 'center',
-    lineHeight: 24,
-    paddingHorizontal: 20,
+    color: '#4B5563',
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
-  featuresContainer: {
-    paddingTop: 40,
-    gap: 24,
+  headerTextCol: {
+    flexShrink: 1,
+    paddingRight: 12,
   },
-  featureItem: {
-    flexDirection: 'row',
+  headerBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    gap: 16,
+    justifyContent: 'center',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
-  featureIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  carouselWrap: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  slide: {
+    flex: 1,
+  },
+  hero: {
+    height: 260,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  heroBadge: {
+    position: 'absolute',
+    right: 20,
+    top: 20,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  artContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  featureText: {
-    flex: 1,
+  stripes: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.1,
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
   },
-  featureTitle: {
-    fontSize: 18,
+  artCircleLarge: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: '#111111',
+    opacity: 0.08,
+    right: -30,
+    bottom: -20,
+  },
+  artCircleSmall: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#000000',
+    opacity: 0.06,
+    right: 40,
+    bottom: 70,
+  },
+  artSquare: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    backgroundColor: '#111111',
+    opacity: 0.06,
+    left: -30,
+    top: 40,
+    transform: [{ rotate: '45deg' }],
+  },
+  bottomSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    gap: 16,
+    alignItems: 'center',
+  },
+  bottomBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    paddingTop: 12,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  getStarted: {
+    backgroundColor: '#000000',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+    minWidth: 170,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+  },
+  getStartedText: {
+    color: '#FFFFFF',
     fontFamily: 'Inter-SemiBold',
-    color: '#1F2937',
-    marginBottom: 4,
+    fontSize: 16,
   },
-  featureDescription: {
+  signInText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#6B7280',
-    lineHeight: 20,
+    color: '#111111',
+    textDecorationLine: 'underline',
   },
-  buttonsContainer: {
-    paddingBottom: 32,
-    gap: 16,
-  },
-  primaryButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  primaryButtonGradient: {
-    paddingVertical: 18,
+  dots: {
+    marginBottom: 10,
+    flexDirection: 'row',
+    gap: 6,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  primaryButtonText: {
-    fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFFFFF',
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#D1D5DB',
   },
-  secondaryButton: {
-    paddingVertical: 18,
+  dotActive: {
+    width: 18,
+    borderRadius: 3,
+    backgroundColor: '#111111',
+  },
+  bottomActions: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
-    color: '#8B5CF6',
+    justifyContent: 'space-between',
+    gap: 12,
   },
 });
