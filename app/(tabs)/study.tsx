@@ -10,6 +10,53 @@ import { useTheme } from '@/contexts/ThemeContext';
 export default function StudyScreen() {
   const { colors } = useTheme();
   
+  const styles = StyleSheet.create({
+    container: { flex: 1 },
+    content: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: 24,
+      paddingBottom: 140, // Extra space for bottom navigation (120px) + additional 20px
+    },
+    section: {
+      marginTop: 32,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 16,
+    },
+    studyModesContainer: {
+      marginBottom: 8,
+    },
+    subjectsGrid: {
+      gap: 16,
+    },
+    bottomSection: {
+      marginTop: 32,
+    },
+    quickActions: {
+      gap: 12,
+    },
+    quickAction: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 12,
+    },
+    quickActionText: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+  });
+
   const subjects = [
     { id: 1, name: 'Mathematics', chapters: 24, progress: 75, icon: '📐' },
     { id: 2, name: 'Physics', chapters: 18, progress: 60, icon: '⚡' },
@@ -71,50 +118,3 @@ export default function StudyScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 140, // Extra space for bottom navigation (120px) + additional 20px
-  },
-  section: {
-    marginTop: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    color: '#111111',
-    marginBottom: 16,
-  },
-  studyModesContainer: {
-    marginBottom: 8,
-  },
-  subjectsGrid: {
-    gap: 16,
-  },
-  bottomSection: {
-    marginTop: 32,
-  },
-  quickActions: {
-    gap: 12,
-  },
-  quickAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: 12,
-  },
-  quickActionText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: colors.text,
-  },
-});

@@ -12,6 +12,117 @@ export default function SettingsScreen() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticEnabled, setHapticEnabled] = useState(true);
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 20,
+      backgroundColor: colors.text,
+    },
+    backButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitle: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      marginLeft: 12,
+      color: colors.surface,
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    content: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: 24,
+      paddingBottom: 120,
+    },
+    section: {
+      marginBottom: 24,
+      padding: 20,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      marginBottom: 4,
+      color: colors.text,
+    },
+    sectionSubtitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      marginBottom: 20,
+      color: colors.textMuted,
+    },
+    themeOptions: {
+      gap: 12,
+    },
+    themeOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      borderRadius: 12,
+      borderWidth: 1,
+      position: 'relative',
+    },
+    themeOptionContent: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    themeOptionLabel: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      marginBottom: 2,
+    },
+    themeOptionDescription: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+    },
+    selectedIndicator: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    settingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 16,
+    },
+    settingRowBorder: {
+      borderBottomWidth: 1,
+    },
+    settingInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    settingContent: {
+      marginLeft: 12,
+      flex: 1,
+    },
+    settingLabel: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      marginBottom: 2,
+      color: colors.text,
+    },
+    settingDescription: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+  });
+
   const themeOptions = [
     { id: 'light', label: 'Light', icon: Sun, description: 'Light theme' },
     { id: 'dark', label: 'Dark', icon: Moon, description: 'Dark theme' },
@@ -28,7 +139,7 @@ export default function SettingsScreen() {
         >
           <ArrowLeft size={24} color={colors.surface} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.surface }]}>Settings</Text>
+        <Text style={styles.headerTitle}>Settings</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -39,8 +150,8 @@ export default function SettingsScreen() {
       >
         {/* Theme Settings */}
         <Card style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
-          <Text style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+          <Text style={styles.sectionSubtitle}>
             Choose your preferred theme
           </Text>
           
@@ -89,8 +200,8 @@ export default function SettingsScreen() {
 
         {/* Notification Settings */}
         <Card style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Notifications</Text>
-          <Text style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+          <Text style={styles.sectionTitle}>Notifications</Text>
+          <Text style={styles.sectionSubtitle}>
             Manage your notification preferences
           </Text>
           
@@ -98,10 +209,10 @@ export default function SettingsScreen() {
             <View style={styles.settingInfo}>
               <Bell size={20} color={colors.text} />
               <View style={styles.settingContent}>
-                <Text style={[styles.settingLabel, { color: colors.text }]}>
+                <Text style={styles.settingLabel}>
                   Push Notifications
                 </Text>
-                <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
+                <Text style={styles.settingDescription}>
                   Receive study reminders and updates
                 </Text>
               </View>
@@ -117,8 +228,8 @@ export default function SettingsScreen() {
 
         {/* Sound & Haptics */}
         <Card style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Sound & Haptics</Text>
-          <Text style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+          <Text style={styles.sectionTitle}>Sound & Haptics</Text>
+          <Text style={styles.sectionSubtitle}>
             Customize audio and vibration settings
           </Text>
           
@@ -126,10 +237,10 @@ export default function SettingsScreen() {
             <View style={styles.settingInfo}>
               <Volume2 size={20} color={colors.text} />
               <View style={styles.settingContent}>
-                <Text style={[styles.settingLabel, { color: colors.text }]}>
+                <Text style={styles.settingLabel}>
                   Sound Effects
                 </Text>
-                <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
+                <Text style={styles.settingDescription}>
                   Play sounds for interactions
                 </Text>
               </View>
@@ -146,10 +257,10 @@ export default function SettingsScreen() {
             <View style={styles.settingInfo}>
               <Zap size={20} color={colors.text} />
               <View style={styles.settingContent}>
-                <Text style={[styles.settingLabel, { color: colors.text }]}>
+                <Text style={styles.settingLabel}>
                   Haptic Feedback
                 </Text>
-                <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
+                <Text style={styles.settingDescription}>
                   Vibrate on interactions
                 </Text>
               </View>
@@ -166,110 +277,5 @@ export default function SettingsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    marginLeft: 12,
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 120,
-  },
-  section: {
-    marginBottom: 24,
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    marginBottom: 20,
-  },
-  themeOptions: {
-    gap: 12,
-  },
-  themeOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    position: 'relative',
-  },
-  themeOptionContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  themeOptionLabel: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    marginBottom: 2,
-  },
-  themeOptionDescription: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-  },
-  selectedIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-  },
-  settingRowBorder: {
-    borderBottomWidth: 1,
-  },
-  settingInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  settingContent: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    marginBottom: 2,
-  },
-  settingDescription: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-  },
-});
 
 

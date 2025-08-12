@@ -13,6 +13,55 @@ export default function FlashcardsScreen() {
   const { colors } = useTheme();
   const [showFlashcard, setShowFlashcard] = useState(false);
 
+  const styles = StyleSheet.create({
+    container: { flex: 1 },
+    content: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: 24,
+      paddingBottom: 120,
+    },
+    flashcardContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 24,
+    },
+    subtitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+      marginBottom: 24,
+    },
+    emptyBox: { 
+      marginTop: 24, 
+      alignItems: 'center',
+      padding: 32,
+    },
+    emptyTitle: { 
+      fontSize: 18, 
+      fontFamily: 'Inter-SemiBold', 
+      color: colors.text,
+      marginTop: 16,
+      marginBottom: 8,
+    },
+    emptySub: { 
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginBottom: 32,
+    },
+    buttonContainer: {
+      width: '100%',
+      gap: 12,
+    },
+    fullWidthButton: {
+      width: '100%',
+    },
+  });
+
   const sampleCards = [
     { front: 'What is the capital of France?', back: 'Paris' },
     { front: 'What is 2 + 2?', back: '4' },
@@ -68,51 +117,5 @@ export default function FlashcardsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 120,
-  },
-  flashcardContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
-    marginBottom: 24,
-  },
-  emptyBox: { 
-    marginTop: 24, 
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: { 
-    fontSize: 18, 
-    fontFamily: 'Inter-SemiBold', 
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptySub: { 
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  buttonContainer: {
-    width: '100%',
-    gap: 12,
-  },
-  fullWidthButton: {
-    width: '100%',
-  },
-});
 
 

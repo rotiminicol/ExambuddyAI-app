@@ -57,6 +57,306 @@ export default function DashboardScreen() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showNotifications, setShowNotifications] = useState(false);
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 20,
+      backgroundColor: colors.background,
+    },
+    headerContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flex: 1,
+    },
+    headerLeft: {
+      flex: 1,
+    },
+    greeting: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+    userName: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginTop: 2,
+    },
+    headerRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    notificationButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    avatarContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    content: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: 24,
+      paddingBottom: 120, // Space for bottom navigation
+    },
+    mainCard: {
+      marginTop: 24,
+      padding: 20,
+    },
+    mainCardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    mainCardTitle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    mainCardTitleText: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    progressBadge: {
+      backgroundColor: colors.text,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    progressBadgeText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Bold',
+      color: colors.surface,
+    },
+    mainCardSubtitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+      marginBottom: 16,
+    },
+    mainCardStats: {
+      flexDirection: 'row',
+      gap: 24,
+      marginBottom: 20,
+    },
+    mainStat: {
+      alignItems: 'center',
+    },
+    mainStatValue: {
+      fontSize: 24,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    mainStatLabel: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    mainCardButton: {
+      marginTop: 0,
+    },
+    statsSection: {
+      marginTop: 24,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    statCard: {
+      width: '48%',
+      padding: 16,
+      gap: 8,
+    },
+    statHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    statTitle: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+    statValue: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    statLabel: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+    actionsSection: {
+      marginTop: 32,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 16,
+    },
+    actionsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    actionCard: {
+      width: '48%',
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 8,
+    },
+    actionIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    actionTitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    actionSubtitle: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+      lineHeight: 16,
+    },
+    chartSection: {
+      marginTop: 32,
+    },
+    chartCard: {
+      padding: 20,
+    },
+    chartHeader: {
+      marginBottom: 16,
+    },
+    chartTitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 12,
+    },
+    chartStats: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    chartStat: {
+      alignItems: 'center',
+    },
+    chartStatValue: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    chartStatLabel: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    activitySection: {
+      marginTop: 32,
+      marginBottom: 24,
+    },
+    activityHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    viewAllText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+    },
+    activityCard: {
+      padding: 0,
+    },
+    activityItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      gap: 12,
+    },
+    activityItemBorder: {
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    activityIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    activityContent: {
+      flex: 1,
+    },
+    activityTitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    activityTime: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+    activityDuration: {
+      fontSize: 14,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    emptyState: {
+      alignItems: 'center',
+      padding: 32,
+    },
+    emptyTitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    emptySubtitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+  });
+
   useEffect(() => {
     loadDashboardData();
     loadUserProfile();
@@ -408,251 +708,3 @@ export default function DashboardScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 120, // Space for bottom navigation
-  },
-  mainCard: {
-    marginTop: 24,
-    padding: 20,
-  },
-  mainCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  mainCardTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  mainCardTitleText: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-  },
-  progressBadge: {
-    backgroundColor: colors.text,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  progressBadgeText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Bold',
-    color: colors.surface,
-  },
-  mainCardSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-    marginBottom: 16,
-  },
-  mainCardStats: {
-    flexDirection: 'row',
-    gap: 24,
-    marginBottom: 20,
-  },
-  mainStat: {
-    alignItems: 'center',
-  },
-  mainStatValue: {
-    fontSize: 24,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-  },
-  mainStatLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  mainCardButton: {
-    marginTop: 0,
-  },
-  statsSection: {
-    marginTop: 24,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  statCard: {
-    width: '48%',
-    padding: 16,
-    gap: 8,
-  },
-  statHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  statTitle: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-  },
-  statValue: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-  },
-  statLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-  },
-  actionsSection: {
-    marginTop: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-    marginBottom: 16,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  actionCard: {
-    width: '48%',
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: 8,
-  },
-  actionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionTitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: colors.text,
-  },
-  actionSubtitle: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-    lineHeight: 16,
-  },
-  chartSection: {
-    marginTop: 32,
-  },
-  chartCard: {
-    padding: 20,
-  },
-  chartHeader: {
-    marginBottom: 16,
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  chartStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  chartStat: {
-    alignItems: 'center',
-  },
-  chartStatValue: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-  },
-  chartStatLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  activitySection: {
-    marginTop: 32,
-    marginBottom: 24,
-  },
-  activityHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  viewAllText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: colors.text,
-  },
-  activityCard: {
-    padding: 0,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    gap: 12,
-  },
-  activityItemBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  activityIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: colors.text,
-  },
-  activityTime: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-  },
-  activityDuration: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: colors.text,
-  },
-  emptyState: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-  },
-});

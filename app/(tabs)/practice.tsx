@@ -10,6 +10,75 @@ import { useTheme } from '@/contexts/ThemeContext';
 export default function PracticeScreen() {
   const { colors } = useTheme();
   
+  const styles = StyleSheet.create({
+    container: { flex: 1 },
+    scroll: { 
+      padding: 24,
+      paddingBottom: 140, // Space for bottom navigation
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+      marginTop: 16,
+    },
+    statCard: {
+      width: '48%',
+      alignItems: 'center',
+      padding: 16,
+    },
+    statValue: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginTop: 8,
+    },
+    statLabel: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: 4,
+    },
+    section: {
+      marginTop: 24,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 12,
+    },
+    testCard: {
+      marginBottom: 12,
+    },
+    testHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    testTitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    testScore: {
+      fontSize: 16,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    testDetails: {
+      flexDirection: 'row',
+      gap: 16,
+    },
+    testDetail: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+  });
+
   const stats = [
     { icon: Target, label: 'Questions Answered', value: '847', color: colors.text },
     { icon: Clock, label: 'Time Spent', value: '12h 30m', color: colors.text },
@@ -59,72 +128,3 @@ export default function PracticeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scroll: { 
-    padding: 24,
-    paddingBottom: 140, // Space for bottom navigation
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 16,
-  },
-  statCard: {
-    width: '48%',
-    alignItems: 'center',
-    padding: 16,
-  },
-  statValue: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  section: {
-    marginTop: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  testCard: {
-    marginBottom: 12,
-  },
-  testHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  testTitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: colors.text,
-  },
-  testScore: {
-    fontSize: 16,
-    fontFamily: 'Inter-Bold',
-    color: colors.text,
-  },
-  testDetails: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  testDetail: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: colors.textMuted,
-  },
-});

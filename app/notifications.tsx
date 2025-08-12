@@ -9,6 +9,115 @@ import { useTheme } from '@/contexts/ThemeContext';
 export default function NotificationsScreen() {
   const { colors } = useTheme();
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 20,
+      backgroundColor: colors.text,
+    },
+    backButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitle: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      marginLeft: 12,
+      color: colors.surface,
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    content: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: 24,
+      paddingBottom: 120,
+    },
+    notificationCard: {
+      marginBottom: 12,
+      padding: 0,
+    },
+    notificationItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      padding: 16,
+      position: 'relative',
+    },
+    notificationIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: '#F3F4F6',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 12,
+    },
+    notificationContent: {
+      flex: 1,
+    },
+    notificationHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 4,
+    },
+    notificationTitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      flex: 1,
+      marginRight: 8,
+      color: colors.text,
+    },
+    notificationTime: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+    notificationMessage: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      lineHeight: 20,
+      color: colors.textMuted,
+    },
+    unreadDot: {
+      position: 'absolute',
+      top: 16,
+      right: 16,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: '#EF4444',
+    },
+    emptyCard: {
+      alignItems: 'center',
+      padding: 40,
+      marginTop: 40,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontFamily: 'Inter-SemiBold',
+      marginTop: 16,
+      marginBottom: 4,
+      color: colors.text,
+    },
+    emptyMessage: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textMuted,
+    },
+  });
+
   const notifications = [
     {
       id: '1',
@@ -87,14 +196,14 @@ export default function NotificationsScreen() {
                 </View>
                 <View style={styles.notificationContent}>
                   <View style={styles.notificationHeader}>
-                    <Text style={[styles.notificationTitle, { color: colors.text }]}>
+                    <Text style={styles.notificationTitle}>
                       {notification.title}
                     </Text>
-                    <Text style={[styles.notificationTime, { color: colors.textMuted }]}>
+                    <Text style={styles.notificationTime}>
                       {notification.time}
                     </Text>
                   </View>
-                  <Text style={[styles.notificationMessage, { color: colors.textMuted }]}>
+                  <Text style={styles.notificationMessage}>
                     {notification.message}
                   </Text>
                 </View>
@@ -105,8 +214,8 @@ export default function NotificationsScreen() {
         ) : (
           <Card style={styles.emptyCard}>
             <Bell size={48} color={colors.textMuted} />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>No notifications</Text>
-            <Text style={[styles.emptyMessage, { color: colors.textMuted }]}>
+            <Text style={styles.emptyTitle}>No notifications</Text>
+            <Text style={styles.emptyMessage}>
               You're all caught up!
             </Text>
           </Card>
@@ -115,107 +224,5 @@ export default function NotificationsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    marginLeft: 12,
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 120,
-  },
-  notificationCard: {
-    marginBottom: 12,
-    padding: 0,
-  },
-  notificationItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: 16,
-    position: 'relative',
-  },
-  notificationIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  notificationContent: {
-    flex: 1,
-  },
-  notificationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 4,
-  },
-  notificationTitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    flex: 1,
-    marginRight: 8,
-  },
-  notificationTime: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-  },
-  notificationMessage: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    lineHeight: 20,
-  },
-  unreadDot: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#EF4444',
-  },
-  emptyCard: {
-    alignItems: 'center',
-    padding: 40,
-    marginTop: 40,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
-    marginTop: 16,
-    marginBottom: 4,
-  },
-  emptyMessage: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-  },
-});
 
 
