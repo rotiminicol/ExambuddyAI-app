@@ -53,7 +53,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { colors } from '@/lib/theme';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { dbHelpers } from '@/lib/supabase';
 
 const { width } = Dimensions.get('window');
 
@@ -144,11 +145,11 @@ function AnimatedMenuItem({ item, index, onPress }: AnimatedMenuItemProps) {
 }
 
 export default function MenuScreen() {
+  const { user, userProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [userProfile, setUserProfile] = useState<any>(null);
   
   const menuItems: MenuItem[] = [
     // Study Tools
@@ -353,21 +354,21 @@ export default function MenuScreen() {
   ];
 
   useEffect(() => {
-    loadUserData();
-    loadUserProfile();
-  }, []);
+    if (user) {
+      loadUserData();
+    }
+  }, [user]);
 
   const loadUserData = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
       
-      // Fetch user stats from Supabase
-      const { data: statsData, error: statsError } = await supabase
-        .from('user_stats')
-        .select('*')
-        .single();
-
-      if (!statsError && statsData) {
+      // Fetch user stats
+      const { data: statsData } = await dbHelpers.getUserStats(user.id);
+      
+      if (statsData) {
         setUserStats({
           totalStudyTime: statsData.total_study_time || 0,
           questionsAnswered: statsData.questions_answered || 0,
@@ -378,15 +379,8 @@ export default function MenuScreen() {
       }
 
       // Fetch recent activity
-      const { data: activityData, error: activityError } = await supabase
-        .from('study_sessions')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (!activityError && activityData) {
-        setRecentActivity(activityData);
-      }
+      const data = await dbHelpers.getDashboardData(user.id);
+      setRecentActivity(data.recentSessions || []);
 
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -395,26 +389,9 @@ export default function MenuScreen() {
     }
   };
 
-  const loadUserProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserProfile({
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.full_name || 'User',
-          avatar: user.user_metadata?.avatar_url || null,
-        });
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-    }
-  };
-
   const onRefresh = async () => {
     setRefreshing(true);
     await loadUserData();
-    await loadUserProfile();
     setRefreshing(false);
   };
 
@@ -470,12 +447,12 @@ export default function MenuScreen() {
             style={styles.avatarContainer}
             onPress={() => router.push('/profile')}
           >
-            {userProfile?.avatar ? (
-              <Image source={{ uri: userProfile.avatar }} style={styles.avatar} />
+            {userProfile?.avatar_url ? (
+              <Image source={{ uri: userProfile.avatar_url }} style={styles.avatar} />
             ) : (
               <Text style={styles.avatarText}>
-                {userProfile?.name ? userProfile.name.charAt(0).toUpperCase() : 
-                 userProfile?.email ? userProfile.email.charAt(0).toUpperCase() : 'U'}
+                {userProfile?.full_name ? userProfile.full_name.charAt(0).toUpperCase() : 
+                 user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
               </Text>
             )}
           </TouchableOpacity>
@@ -500,7 +477,7 @@ export default function MenuScreen() {
               </View>
               <View style={styles.statsBadge}>
                 <Star size={12} color={colors.text} />
-                <Text style={styles.statsBadgeText}>Premium</Text>
+                <Text style={styles.statsBadgeText}>Active</Text>
               </View>
             </View>
             <View style={styles.statsGrid}>
@@ -1016,6 +993,3 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '180deg' }],
   },
 });
-
-
-

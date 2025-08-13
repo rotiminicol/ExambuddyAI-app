@@ -13,7 +13,8 @@ import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { PerformanceChart } from '@/components/PerformanceChart';
 import { NotificationDropdown } from '@/components/NotificationDropdown';
 import { useTheme } from '@/contexts/ThemeContext';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { dbHelpers } from '@/lib/supabase';
 
 interface DashboardData {
   examPreparation: {
@@ -51,10 +52,10 @@ interface DashboardData {
 
 export default function DashboardScreen() {
   const { colors } = useTheme();
+  const { user, userProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const styles = StyleSheet.create({
@@ -358,80 +359,52 @@ export default function DashboardScreen() {
   });
 
   useEffect(() => {
-    loadDashboardData();
-    loadUserProfile();
-  }, []);
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
 
   const loadDashboardData = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
       
-      // Fetch exam preparation data
-      const { data: examData, error: examError } = await supabase
-        .from('exam_preparations')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      // Fetch study progress
-      const { data: progressData, error: progressError } = await supabase
-        .from('study_progress')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      // Fetch weekly activity
-      const { data: weeklyData, error: weeklyError } = await supabase
-        .from('weekly_activity')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      // Fetch recent study sessions
-      const { data: sessionsData, error: sessionsError } = await supabase
-        .from('study_sessions')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (!examError && examData) {
-        setDashboardData({
-          examPreparation: {
-            subject: examData.subject || 'Math Exam',
-            daysLeft: examData.days_left || 12,
-            progress: examData.progress || 45,
-          },
-          studyProgress: {
-            completed: progressData?.completed_days || 15,
-            total: progressData?.total_days || 27,
-            percentage: progressData?.percentage || 55,
-          },
-          todayGoal: {
-            target: 60,
-            completed: 45,
-            unit: 'minutes',
-          },
-          weeklyStats: {
-            daysCompleted: 5,
-            totalDays: 7,
-          },
-          weeklyActivity: {
-            questions: weeklyData?.questions || 24,
-            flashcards: weeklyData?.flashcards || 18,
-            minutes: weeklyData?.study_minutes || 320,
-          },
-          recentSessions: sessionsData?.map(session => ({
-            id: session.id,
-            subject: session.subject || 'Study Session',
-            duration: session.duration || 30,
-            date: session.created_at,
-            type: session.type || 'practice',
-          })) || [],
-        });
-      }
+      const data = await dbHelpers.getDashboardData(user.id);
+      
+      setDashboardData({
+        examPreparation: {
+          subject: data.examPreparation?.subject || 'Mathematics Final Exam',
+          daysLeft: data.examPreparation?.days_left || 12,
+          progress: data.examPreparation?.progress || 65,
+        },
+        studyProgress: {
+          completed: data.studyProgress?.completed_days || 15,
+          total: data.studyProgress?.total_days || 27,
+          percentage: data.studyProgress?.percentage || 55,
+        },
+        todayGoal: {
+          target: 60,
+          completed: data.studyProgress?.study_minutes || 45,
+          unit: 'minutes',
+        },
+        weeklyStats: {
+          daysCompleted: 5,
+          totalDays: 7,
+        },
+        weeklyActivity: {
+          questions: data.weeklyActivity?.questions || 24,
+          flashcards: data.weeklyActivity?.flashcards || 18,
+          minutes: data.weeklyActivity?.study_minutes || 320,
+        },
+        recentSessions: data.recentSessions.map(session => ({
+          id: session.id,
+          subject: session.subject || 'Study Session',
+          duration: session.duration || 30,
+          date: session.created_at,
+          type: session.session_type || 'practice',
+        })),
+      });
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -439,26 +412,9 @@ export default function DashboardScreen() {
     }
   };
 
-  const loadUserProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserProfile({
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.full_name || 'User',
-          avatar: user.user_metadata?.avatar_url || null,
-        });
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-    }
-  };
-
   const onRefresh = async () => {
     setRefreshing(true);
     await loadDashboardData();
-    await loadUserProfile();
     setRefreshing(false);
   };
 
@@ -497,26 +453,33 @@ export default function DashboardScreen() {
     },
   ];
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   if (loading) {
-  return (
-    <SafeAreaView style={styles.container}>
+    return (
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-        <View style={styles.headerContent}>
+          <View style={styles.headerContent}>
             <View style={styles.headerLeft}>
               <Text style={styles.greeting}>Good morning</Text>
               <Text style={styles.userName}>Welcome back!</Text>
-          </View>
+            </View>
             <View style={styles.headerRight}>
               <TouchableOpacity style={styles.notificationButton}>
                 <Bell size={20} color={colors.text} />
               </TouchableOpacity>
-          <TouchableOpacity style={styles.avatarContainer}>
+              <TouchableOpacity style={styles.avatarContainer}>
                 <User size={20} color={colors.text} />
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <LoadingSkeleton height={120} borderRadius={20} style={styles.mainCard} />
           <View style={styles.statsGrid}>
             {[1, 2, 3, 4].map((i) => (
@@ -528,16 +491,16 @@ export default function DashboardScreen() {
             {[1, 2, 3, 4].map((i) => (
               <LoadingSkeleton key={i} height={120} borderRadius={16} style={styles.actionCard} />
             ))}
-                  </View>
-      </ScrollView>
-      
-      <NotificationDropdown 
-        isVisible={showNotifications}
-        onClose={() => setShowNotifications(false)}
-      />
-    </SafeAreaView>
-  );
-}
+          </View>
+        </ScrollView>
+        
+        <NotificationDropdown 
+          isVisible={showNotifications}
+          onClose={() => setShowNotifications(false)}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -564,7 +527,7 @@ export default function DashboardScreen() {
             <View style={styles.mainCardHeader}>
               <View style={styles.mainCardTitle}>
                 <BookOpen size={24} color={colors.text} />
-                <Text style={styles.mainCardTitleText}>{dashboardData.examPreparation.subject} Preparation</Text>
+                <Text style={styles.mainCardTitleText}>{dashboardData.examPreparation.subject}</Text>
               </View>
               <View style={styles.progressBadge}>
                 <Text style={styles.progressBadgeText}>{dashboardData.examPreparation.progress}%</Text>
@@ -581,7 +544,7 @@ export default function DashboardScreen() {
                 <Text style={styles.mainStatLabel}>days completed</Text>
               </View>
             </View>
-            <Button title="View Study Plan" style={styles.mainCardButton} />
+            <Button title="View Study Plan" style={styles.mainCardButton} onPress={() => router.push('/study-plan')} />
           </Card>
         )}
 
@@ -617,7 +580,7 @@ export default function DashboardScreen() {
                 <Zap size={20} color={colors.text} />
                 <Text style={styles.statTitle}>Streak</Text>
               </View>
-              <Text style={styles.statValue}>5</Text>
+              <Text style={styles.statValue}>{userProfile?.stats?.streak || 0}</Text>
               <Text style={styles.statLabel}>Days</Text>
             </Card>
           </View>

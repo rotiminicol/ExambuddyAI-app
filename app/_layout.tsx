@@ -9,11 +9,6 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
 
-// Ensure initial route is the splash screen even when router state would persist in dev
-export const unstable_settings = {
-  initialRouteName: 'splash',
-};
-
 export default function RootLayout() {
   useFrameworkReady();
 
@@ -37,7 +32,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Stack initialRouteName="splash" screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="splash" />
           <Stack.Screen name="welcome" />
           <Stack.Screen name="auth/signin" />

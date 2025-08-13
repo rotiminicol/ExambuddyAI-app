@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { 
@@ -24,62 +24,52 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/lib/theme';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { dbHelpers } from '@/lib/supabase';
 
 export default function ProfileScreen() {
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const { user, userProfile, signOut, refreshUserData } = useAuth();
   const [userStats, setUserStats] = useState<any>(null);
 
   useEffect(() => {
-    loadUserProfile();
-    loadUserStats();
-  }, []);
-
-  const loadUserProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserProfile({
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.full_name || 'User',
-          avatar: user.user_metadata?.avatar_url || null,
-          joinedDate: user.created_at,
-        });
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
+    if (user) {
+      loadUserStats();
     }
-  };
+  }, [user]);
 
   const loadUserStats = async () => {
+    if (!user) return;
+    
     try {
-      const { data: statsData, error: statsError } = await supabase
-        .from('user_stats')
-        .select('*')
-        .single();
-
-      if (!statsError && statsData) {
-        setUserStats({
-          totalStudyTime: statsData.total_study_time || 0,
-          questionsAnswered: statsData.questions_answered || 0,
-          accuracy: statsData.accuracy || 0,
-          streak: statsData.streak || 0,
-          achievements: statsData.achievements || 0,
-        });
-      }
+      const { data: statsData } = await dbHelpers.getUserStats(user.id);
+      setUserStats(statsData);
     } catch (error) {
       console.error('Error loading user stats:', error);
     }
   };
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.replace('/splash');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (error) {
+              console.error('Error signing out:', error);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const formatStudyTime = (minutes: number) => {
@@ -104,7 +94,7 @@ export default function ProfileScreen() {
             <Text style={styles.greeting}>Profile</Text>
             <Text style={styles.userName}>Your account & settings</Text>
           </View>
-          <TouchableOpacity style={styles.settingsButton}>
+          <TouchableOpacity style={styles.settingsButton} onPress={() => router.push('/settings')}>
             <Settings size={20} color={colors.surface} />
           </TouchableOpacity>
         </View>
@@ -119,22 +109,22 @@ export default function ProfileScreen() {
         <Card style={styles.profileCard}>
           <View style={styles.profileHeader}>
             <View style={styles.avatarContainer}>
-              {userProfile?.avatar ? (
-                <Image source={{ uri: userProfile.avatar }} style={styles.avatar} />
+              {userProfile?.avatar_url ? (
+                <Image source={{ uri: userProfile.avatar_url }} style={styles.avatar} />
               ) : (
                 <Text style={styles.avatarText}>
-                  {userProfile?.name ? userProfile.name.charAt(0).toUpperCase() : 
-                   userProfile?.email ? userProfile.email.charAt(0).toUpperCase() : 'U'}
+                  {userProfile?.full_name ? userProfile.full_name.charAt(0).toUpperCase() : 
+                   user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
                 </Text>
               )}
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{userProfile?.name || 'User'}</Text>
-              <Text style={styles.profileEmail}>{userProfile?.email || 'user@example.com'}</Text>
+              <Text style={styles.profileName}>{userProfile?.full_name || 'User'}</Text>
+              <Text style={styles.profileEmail}>{user?.email || 'user@example.com'}</Text>
               <View style={styles.memberSince}>
                 <Calendar size={14} color={colors.textMuted} />
                 <Text style={styles.memberSinceText}>
-                  Member since {userProfile?.joinedDate ? formatDate(userProfile.joinedDate) : 'Unknown'}
+                  Member since {user?.created_at ? formatDate(user.created_at) : 'Unknown'}
                 </Text>
               </View>
             </View>
@@ -151,22 +141,22 @@ export default function ProfileScreen() {
             <View style={styles.statsGrid}>
               <Card style={styles.statCard}>
                 <Clock size={20} color={colors.text} />
-                <Text style={styles.statValue}>{formatStudyTime(userStats.totalStudyTime)}</Text>
+                <Text style={styles.statValue}>{formatStudyTime(userStats.total_study_time || 0)}</Text>
                 <Text style={styles.statLabel}>Total Study Time</Text>
               </Card>
               <Card style={styles.statCard}>
                 <Target size={20} color={colors.text} />
-                <Text style={styles.statValue}>{userStats.questionsAnswered}</Text>
+                <Text style={styles.statValue}>{userStats.questions_answered || 0}</Text>
                 <Text style={styles.statLabel}>Questions Answered</Text>
               </Card>
               <Card style={styles.statCard}>
                 <TrendingUp size={20} color={colors.text} />
-                <Text style={styles.statValue}>{userStats.accuracy}%</Text>
+                <Text style={styles.statValue}>{userStats.accuracy || 0}%</Text>
                 <Text style={styles.statLabel}>Accuracy</Text>
               </Card>
               <Card style={styles.statCard}>
                 <Zap size={20} color={colors.text} />
-                <Text style={styles.statValue}>{userStats.streak}</Text>
+                <Text style={styles.statValue}>{userStats.streak || 0}</Text>
                 <Text style={styles.statLabel}>Day Streak</Text>
               </Card>
             </View>
@@ -216,21 +206,21 @@ export default function ProfileScreen() {
         <View style={styles.actionsSection}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsList}>
-            <TouchableOpacity style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/settings')}>
               <View style={styles.actionIcon}>
                 <Settings size={20} color={colors.text} />
               </View>
               <Text style={styles.actionTitle}>App Settings</Text>
               <ChevronRight size={20} color={colors.textMuted} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/notifications')}>
               <View style={styles.actionIcon}>
                 <Bell size={20} color={colors.text} />
               </View>
               <Text style={styles.actionTitle}>Notifications</Text>
               <ChevronRight size={20} color={colors.textMuted} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/help')}>
               <View style={styles.actionIcon}>
                 <HelpCircle size={20} color={colors.text} />
               </View>
