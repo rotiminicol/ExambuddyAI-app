@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import {
-  BookOpen, Target, Clock, TrendingUp, Plus, Brain, FileText, Upload, BarChart3,
-  Calendar, Zap, Award, ChevronRight, Bell, Settings, User
-} from 'lucide-react-native';
+import { BookOpen, Target, Clock, TrendingUp, Plus, Brain, FileText, Upload, ChartBar as BarChart3, Calendar, Zap, Award, ChevronRight, Bell, Settings, User } from 'lucide-react-native';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
