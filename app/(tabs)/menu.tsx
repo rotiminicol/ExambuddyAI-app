@@ -2,44 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { 
-  MessageSquare, 
-  BarChart3, 
-  Target, 
-  Bell, 
-  Settings, 
-  HelpCircle, 
-  Download, 
-  Share2,
-  Crown,
-  Zap,
-  BookOpen,
-  Clock,
-  TrendingUp,
-  Award,
-  ChevronRight,
-  Star,
-  Sparkles,
-  User,
-  FileText,
-  Brain,
-  Upload,
-  Calendar,
-  Bookmark,
-  Star as StarIcon,
-  Gift,
-  Shield,
-  Globe,
-  Smartphone,
-  Headphones,
-  Palette,
-  Moon,
-  Sun,
-  Languages,
-  Volume2,
-  Wifi,
-  WifiOff
-} from 'lucide-react-native';
+import { MessageSquare, ChartBar as BarChart3, Target, Bell, Settings, CircleHelp as HelpCircle, Download, Share2, Crown, Zap, BookOpen, Clock, TrendingUp, Award, ChevronRight, Star, Sparkles, User, FileText, Brain, Upload, Calendar, Bookmark, Star as StarIcon, Gift, Shield, Globe, Smartphone, Headphones, Palette, Moon, Sun, Languages, Volume2, Wifi, WifiOff } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 

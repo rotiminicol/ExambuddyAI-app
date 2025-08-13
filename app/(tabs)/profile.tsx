@@ -2,25 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { 
-  ArrowLeft, 
-  User, 
-  Mail, 
-  Calendar, 
-  Award, 
-  Target, 
-  Clock, 
-  TrendingUp,
-  Settings,
-  Bell,
-  HelpCircle,
-  LogOut,
-  Edit,
-  Crown,
-  Star,
-  Zap,
-  ChevronRight
-} from 'lucide-react-native';
+import { ArrowLeft, User, Mail, Calendar, Award, Target, Clock, TrendingUp, Settings, Bell, CircleHelp as HelpCircle, LogOut, CreditCard as Edit, Crown, Star, Zap, ChevronRight } from 'lucide-react-native';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/lib/theme';
